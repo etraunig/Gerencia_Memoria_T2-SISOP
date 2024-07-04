@@ -24,6 +24,7 @@ class VariablePartition{
 
     public void start(ArrayList<Instruction> instrucoes, String estrategia, int tamanho_memoria){
         //inicializa a linked list
+        head = new Particao();
         head.prev = null;
         head.prox = null;
         head.status = 'H';
@@ -59,7 +60,7 @@ class VariablePartition{
         //itera pela linked list para achar maior particao, salvando indice
         do {
             i += 1;
-            if (aux.tamanho >= maior_tamanho){
+            if (aux.status == 'H' && aux.tamanho >= maior_tamanho){
                 maior_tamanho = aux.tamanho;
                 indice_maior_tamanho = i; 
             }
@@ -81,19 +82,30 @@ class VariablePartition{
         // se sobrou espaco, aloca nova particao Hole do lado com o restante
         if (aux2.tamanho - processo.tamanho > 0){
             //verifica se particao do lado ja eh um hole, se sim basta aumentar seu tamanho
-            if (aux2.prox.status == 'H'){
+            if (aux2.prox != null && aux2.prox.status == 'H'){
                 aux2.prox.tamanho += aux2.tamanho - processo.tamanho;
+                aux2.tamanho = processo.tamanho;
                 return true;
             }
-            Particao aux3 = aux2.prox;
-            Particao particao_nova = new Particao();
-            particao_nova.status = 'H';
-            particao_nova.tamanho = aux2.tamanho - processo.tamanho;
-            aux2.tamanho = processo.tamanho;
-            particao_nova.prev = aux2;
-            particao_nova.prox = aux3;
-            aux2.prox = particao_nova;
-            aux3.prev = particao_nova;
+            if (aux2.prox != null && aux2.prox.status == 'P'){ // se part do lado n eh hole
+                Particao aux3 = aux2.prox;
+                Particao particao_nova = new Particao();
+                particao_nova.status = 'H';
+                particao_nova.tamanho = aux2.tamanho - processo.tamanho;
+                aux2.tamanho = processo.tamanho;
+                particao_nova.prev = aux2;
+                particao_nova.prox = aux3;
+                aux2.prox = particao_nova;
+                aux3.prev = particao_nova;
+            }
+            else{ //particao do lado ainda n existe
+                Particao particao_nova = new Particao();
+                particao_nova.status = 'H';
+                particao_nova.tamanho = aux2.tamanho - processo.tamanho;
+                particao_nova.prev = aux2;
+                aux2.prox = particao_nova;
+                aux2.tamanho = processo.tamanho;
+            }
         } 
         return true;
     }
@@ -109,29 +121,41 @@ class VariablePartition{
 
         do {
             indice +=1;
-            if (aux.tamanho >= processo.tamanho){ //achou particao grande o suficiente
+            if (aux.status == 'H' && aux.tamanho >= processo.tamanho){ //achou particao grande o suficiente
                 aux.status = 'P';
                 aux.p = processo;
                 circular_fit_index = indice;
                 // se sobrou espaco, aloca nova particao Hole do lado com o restante
                 if (aux.tamanho - processo.tamanho > 0){
                     //verifica se particao do lado ja eh um hole, se sim basta aumentar seu tamanho
-                    if (aux.prox.status == 'H'){
+                    if (aux.prox != null && aux.prox.status == 'H'){
                         aux.prox.tamanho += aux.tamanho - processo.tamanho;
+                        aux.tamanho = processo.tamanho;
                         return true;
                     }
-                    Particao aux2 = aux.prox;
-                    Particao particao_nova = new Particao();
-                    particao_nova.status = 'H';
-                    particao_nova.tamanho = aux.tamanho - processo.tamanho;
-                    aux.tamanho = processo.tamanho;
-                    particao_nova.prev = aux;
-                    particao_nova.prox = aux2;
-                    aux.prox = particao_nova;
-                    aux2.prev = particao_nova;
+                    else if (aux.prox != null && aux.prox.status == 'P'){
+                        Particao aux2 = aux.prox;
+                        Particao particao_nova = new Particao();
+                        particao_nova.status = 'H';
+                        particao_nova.tamanho = aux.tamanho - processo.tamanho;
+                        aux.tamanho = processo.tamanho;
+                        particao_nova.prev = aux;
+                        particao_nova.prox = aux2;
+                        aux.prox = particao_nova;
+                        aux2.prev = particao_nova;
+                    }
+                    else{ //particao do lado ainda n existe
+                        Particao particao_nova = new Particao();
+                        particao_nova.status = 'H';
+                        particao_nova.tamanho = aux.tamanho - processo.tamanho;
+                        particao_nova.prev = aux;
+                        aux.prox = particao_nova;
+                        aux.tamanho = processo.tamanho;
+                    }
                 }
                 return true; 
             }
+            aux = aux.prox;
         } while (aux != null);
 
         //se ainda nao achou um fit, volta pro inicio da lista e itera ate onde tinha comecado antes
@@ -143,20 +167,30 @@ class VariablePartition{
                 // se sobrou espaco, aloca nova particao Hole do lado com o restante
                 if (aux.tamanho - processo.tamanho > 0){
                     //verifica se particao do lado ja eh um hole, se sim basta aumentar seu tamanho
-                    if (aux.prox.status == 'H'){
+                    if (aux.prox != null && aux.prox.status == 'H'){
                         aux.prox.tamanho += aux.tamanho - processo.tamanho;
+                        aux.tamanho = processo.tamanho;
                         return true;
                     }
-                    Particao aux2 = aux.prox;
-                    Particao particao_nova = new Particao();
-                    particao_nova.status = 'H';
-                    particao_nova.tamanho = aux.tamanho - processo.tamanho;
-                    aux.tamanho = processo.tamanho;
-                    particao_nova.prev = aux;
-                    particao_nova.prox = aux2;
-                    aux.prox = particao_nova;
-                    aux2.prev = particao_nova;
-                    return true;
+                    else if (aux.prox != null && aux.prox.status == 'P'){
+                        Particao aux2 = aux.prox;
+                        Particao particao_nova = new Particao();
+                        particao_nova.status = 'H';
+                        particao_nova.tamanho = aux.tamanho - processo.tamanho;
+                        aux.tamanho = processo.tamanho;
+                        particao_nova.prev = aux;
+                        particao_nova.prox = aux2;
+                        aux.prox = particao_nova;
+                        aux2.prev = particao_nova;
+                    }
+                    else{ //particao do lado ainda n existe
+                        Particao particao_nova = new Particao();
+                        particao_nova.status = 'H';
+                        particao_nova.tamanho = aux.tamanho - processo.tamanho;
+                        particao_nova.prev = aux;
+                        aux.prox = particao_nova;
+                        aux.tamanho = processo.tamanho;
+                    }
                 }
             }
         }
@@ -172,19 +206,25 @@ class VariablePartition{
             if(aux.status == 'P'){
                 if (aux.p.Id == IdProcesso){ //achou o processo
                     //verifica se alguma particao adjacente eh Hole, se for junta espaco livre com elas
-                    if(aux.prev.status == 'H' && aux.prox.status == 'H'){
-                        aux.prev.prox = aux.prox;
+                    if((aux.prev != null && aux.prev.status == 'H') && (aux.prox != null && aux.prox.status == 'H')){
+                        if (aux.prox.prox != null)
+                            aux.prev.prox = aux.prox.prox;
+                        else
+                            aux.prev.prox = null;
+
                         aux.prev.tamanho += aux.tamanho + aux.prox.tamanho;
                         return;
                     }
-                    else if (aux.prev.status == 'H'){
+                    else if (aux.prev != null && aux.prev.status == 'H'){
                         aux.prev.prox = aux.prox;
                         aux.prev.tamanho += aux.tamanho;
+                        aux.prox.prev = aux.prev;
                         return;
                     }
                     else if (aux.prox.status == 'H'){
                         aux.prox.prev = aux.prev;
                         aux.prox.tamanho += aux.tamanho;
+                        aux.prev.prox = aux.prox;
                         return;
                     }
                     else{ //caso nenhuma particao adjacente eh hole
@@ -205,6 +245,6 @@ class VariablePartition{
             }
             aux = aux.prox;
         } while (aux != null);
-
+        System.out.println();
     }
 }
