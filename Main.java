@@ -53,6 +53,7 @@ public class Main {
             System.out.print(options[1]);
             option[1] = scanner.nextInt();
         }
+        System.out.println("\n-------------------------------------------------\n");
         scanner.close();
         return option;
     }

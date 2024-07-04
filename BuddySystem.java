@@ -142,14 +142,11 @@ public class BuddySystem {
     public void printFreeBlocks() {
         System.out.print("Blocos Livres: |");
         Stack<Node> stack = new Stack<>();
-        int sum = 0;
         Node aux = totalMemoryNode;
         stack.push(totalMemoryNode);
-        int count = 0;
         while(!stack.empty()) {
             aux = stack.pop();
             if(!aux.free) {
-                sum+=aux.size;
                 continue;
             }
             if(aux.left == null && aux.right == null) {
@@ -159,7 +156,6 @@ public class BuddySystem {
                 stack.push(aux.right);
                 stack.push(aux.left);
             }
-            sum+=aux.size;
         }
         System.out.println("\n");
     }
