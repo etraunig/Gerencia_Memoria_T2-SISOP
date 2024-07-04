@@ -12,6 +12,7 @@ public class BuddySystem {
         public Node(Node father, int totalSize) {
             this.father = father;
             this.size = totalSize;
+            this.free = true;
         }
 
         public int getFragmentation() {
@@ -19,10 +20,10 @@ public class BuddySystem {
         }
     }
     /*******************************************/
-    public Node totalMemory;
+    public Node totalMemoryNode;
 
     public BuddySystem(int totalMemorySize) {
-        this.totalMemory = new Node(null, totalMemorySize);
+        this.totalMemoryNode = new Node(null, totalMemorySize);
     }
 
     public int nextPowerOf2(int size) {
@@ -35,29 +36,26 @@ public class BuddySystem {
 
     public void runInstructions(ArrayList<Instruction> instructions) {
         for(Instruction inst : instructions) {
-            //in
-            if(inst.instruction == 'I') {
+            if(inst.instruction == 'I')
                 InstructionIN(inst);
-            }
-            //out
-            else if(inst.instruction == 'O'){
-                //code
-            }
-            else {
-                System.out.println("error at runInstructions");
-            }
+            else if(inst.instruction == 'O')
+                InstructionOUT(inst);
+            else 
+                System.out.println("error at runInstructions: Instruction -> " + inst.instruction + inst.processID + inst.size);
+
+            printFreeBlocks();
         }
     }
 
     public void InstructionIN(Instruction inst) {
-        if(inst.size > totalMemory.size) {
+        if(inst.size > totalMemoryNode.size) {
             System.out.println("ESPAÇO INSUFICIENTE DE MEMÓRIA");
             return;
         }
         Stack<Node> stack = new Stack<Node>();
         int nextPower = nextPowerOf2(inst.size);
-        stack.push(totalMemory);
-        Node aux = totalMemory;
+        stack.push(totalMemoryNode);
+        Node aux = totalMemoryNode;
         while(aux.size >= nextPower){
             aux = stack.pop();
             if(!aux.free)
@@ -67,21 +65,8 @@ public class BuddySystem {
                     aux.processID = inst.processID;
                     aux.programSize = inst.size;
                     aux.free = false;
+                    break;
                 }
-                /*else {
-                    if(aux.father != null) {
-                        aux = aux.father.right;
-                        if(aux.left == null && aux.right == null) {
-                            aux.processID = inst.processID;
-                            aux.programSize = inst.size;
-                            aux.free = false;
-                        }
-                        aux = aux.father;
-                        if(aux.father != null) {
-                            aux = aux.father.right;
-                        }
-                    }
-                }*/
             }
             else if(aux.left == null && aux.right == null){
                 aux.left = new Node(aux, aux.size/2);
@@ -94,5 +79,88 @@ public class BuddySystem {
                 stack.push(aux.left);
             }
         }
+        System.out.print("Instruçao IN(" + inst.processID + ", " + inst.size + ") -> ");
+        System.out.println("Fragmentaçao Interna: " + aux.getFragmentation());
+    }
+
+    public void InstructionOUT(Instruction inst) {
+        Stack<Node> stack = new Stack<Node>();
+        stack.push(totalMemoryNode);
+        Node aux = totalMemoryNode;
+        while(!stack.empty()) {
+            aux = stack.pop();
+            if(!aux.free) {
+                if(aux.processID == inst.processID) {
+                    aux.free = true;
+                    break;
+                }
+            }
+            else {
+                if(aux.left != null && aux.right != null) {
+                    stack.push(aux.right);
+                    stack.push(aux.left);
+                }
+            }
+        }
+        RegroupBlocks();
+        System.out.println("Instruçao OUT(" + inst.processID + ") finalizada");
+    }
+
+    public void RegroupBlocks() {
+        Stack<Node> stack = new Stack<Node>();
+        stack.push(totalMemoryNode);
+        Node aux = totalMemoryNode;
+        while(!stack.empty()) {
+            aux = stack.pop();
+            if(aux.left == null && aux.right == null && aux.free) {
+                if(aux.father != null) {
+                    Node aux2 = aux.father;
+                    Node aux3 = new Node(null, 0);
+                    if(aux2.left.equals(aux)) {
+                        aux3 = aux2.right;
+                    }
+                    else if(aux2.right.equals(aux)) {
+                        aux3 = aux2.left;
+                    }
+                    if(aux3.left == null && aux3.right == null && aux3.free) {
+                        aux2.right = null;
+                        aux2.left = null;
+                        stack = new Stack<>();
+                        stack.push(totalMemoryNode);
+                    }
+                }
+                else
+                    return;
+            }
+            else if(aux.left != null && aux.right != null) {
+                stack.push(aux.right);
+                stack.push(aux.left);
+            }
+        }
+    }
+
+    public void printFreeBlocks() {
+        System.out.print("Blocos Livres: |");
+        Stack<Node> stack = new Stack<>();
+        int sum = 0;
+        Node aux = totalMemoryNode;
+        stack.push(totalMemoryNode);
+        int count = 0;
+        while(!stack.empty()) {
+            aux = stack.pop();
+            if(!aux.free) {
+                sum+=aux.size;
+                continue;
+            }
+            if(aux.left == null && aux.right == null) {
+                System.out.print(aux.size + "|");
+            }
+            else {
+                stack.push(aux.right);
+                stack.push(aux.left);
+            }
+            sum+=aux.size;
+        }
+        System.out.println("\n");
     }
 }
