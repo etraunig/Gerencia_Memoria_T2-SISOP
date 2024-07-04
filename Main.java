@@ -11,16 +11,22 @@ public class Main {
         ArrayList<Instruction> instructions = readInstructions("instructions.txt");
 
         int[] option = menu();
-        if(option[0] == 1) {
+        if(option[0] == 1) { //Buddy System
             //continue
+            BuddySystem buddy = new BuddySystem(totalMemory);
+            buddy.runInstructions(instructions);
         }
-        else if(option[0] == 2) {
-            if(option[1] == 1) {
-                //worst-fit
+        else if(option[0] == 2) { 
+            VariablePartition variablePartition = new VariablePartition();
+            if(option[1] == 1) { //Worst-Fit
+                variablePartition.start(instructions, "worstfit", totalMemory);
             }
-            else if(option[1] == 2) {
-                //circular-fit
+            else if(option[1] == 2) { //Circular-Fit
+                variablePartition.start(instructions, "circularfit", totalMemory);
             }
+        }
+        else {
+            System.out.println("Nenhuma opçao escolhida");
         }
     }
 

@@ -21,15 +21,8 @@ class VariablePartition{
             this.tamanho = tamanho;
         }
     }
-    
 
-    static class Instrucao{
-        String instrucao;
-        char id_processo;
-        int tamanho; //opcional
-    }
-
-    public void start(ArrayList<Instrucao> instrucoes, String estrategia, int tamanho_memoria){
+    public void start(ArrayList<Instruction> instrucoes, String estrategia, int tamanho_memoria){
         //inicializa a linked list
         head.prev = null;
         head.prox = null;
@@ -37,10 +30,10 @@ class VariablePartition{
         head.tamanho = tamanho_memoria;
 
         //processa cada instrucao
-        for (Instrucao instrucao : instrucoes) {
-            switch (instrucao.instrucao) {
-                case "IN":
-                    Processo p = new Processo(instrucao.id_processo, instrucao.tamanho);
+        for (Instruction instrucao : instrucoes) {
+            switch (instrucao.instruction) {
+                case 'I':
+                    Processo p = new Processo(instrucao.processID, instrucao.size);
                     if (estrategia.equals("worstfit"))
                         aloca_processo_worst_fit(p);
                     else if (estrategia.equals("circularfit"))
@@ -49,8 +42,8 @@ class VariablePartition{
                     print_particoes_livres();
                     break;
             
-                case "OUT":
-                    desaloca_processo(instrucao.id_processo);
+                case 'O':
+                    desaloca_processo(instrucao.processID);
                     print_particoes_livres();
                     break;
             }
