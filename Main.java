@@ -69,7 +69,7 @@ public class Main {
                 size = 0;
                 if(inst == 'I') {
                     pid = line.charAt(3);
-                    size = Character.getNumericValue(line.charAt(5));
+                    size = Integer.parseInt(line.split(",")[1].split("\\)")[0]);
                 }
                 else { //inst == 'O'
                     pid = line.charAt(4);

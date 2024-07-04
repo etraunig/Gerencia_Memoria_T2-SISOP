@@ -80,7 +80,7 @@ public class BuddySystem {
             }
         }
         System.out.print("Instruçao IN(" + inst.processID + ", " + inst.size + ") -> ");
-        if(stack.empty()) //went through the whole tree, was not able to find a spot
+        if(stack.empty() && aux.free) //went through the whole tree, was not able to find a spot
             System.out.println("ESPAÇO INSUFICIENTE DE MEMÓRIA");
         else // was able to find a spot
             System.out.println("Fragmentaçao Interna: " + aux.getFragmentation());
