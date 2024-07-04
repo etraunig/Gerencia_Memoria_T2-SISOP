@@ -40,7 +40,7 @@ public class Main {
                         "|  |  |  | |  |____ |  |  |  | |  |__|  | |  |\\  \\     |  |      \n"+
                         "|__|  |__| |_______||__|  |__|  \\______/  | _| \\__|    |__|      \n\n\n";
 
-        String[] options = {"Opçao de memoria desejada? (1 - Memoria Fixa | 2 - Memoria Variavel): ",
+        String[] options = {"Opçao de memoria desejada? (1 - Sistema Buddy | 2 - Memoria Variavel): ",
                             "Politica desejada? (1 - Worst-Fit | 2 - Circular-Fit): "};
 
         System.out.println(title);
